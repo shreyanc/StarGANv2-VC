@@ -20,20 +20,20 @@ from meldataset import build_dataloader
 from optimizers import build_optimizer
 from models import build_model
 from trainer import Trainer
-from torch.utils.tensorboard import SummaryWriter
 
 from Utils.ASR.models import ASRCNN
 from Utils.JDC.model import JDCNet
 
 import logging
 from logging import StreamHandler
+import wandb
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 handler = StreamHandler()
 handler.setLevel(logging.DEBUG)
 logger.addHandler(handler)
 
-torch.backends.cudnn.benchmark = True #
+torch.backends.cudnn.benchmark = False #
 
 @click.command()
 @click.option('-p', '--config_path', default='Configs/config.yml', type=str)
@@ -41,10 +41,12 @@ torch.backends.cudnn.benchmark = True #
 def main(config_path):
     config = yaml.safe_load(open(config_path))
 
+    wandb.init(project='rosvc')
+
     log_dir = config['log_dir']
     if not osp.exists(log_dir): os.makedirs(log_dir, exist_ok=True)
     shutil.copy(config_path, osp.join(log_dir, osp.basename(config_path)))
-    writer = SummaryWriter(log_dir + "/tensorboard")
+    # writer = SummaryWriter(log_dir + "/tensorboard")w
 
     # write logs
     file_handler = logging.FileHandler(osp.join(log_dir, 'train.log'))
@@ -126,14 +128,16 @@ def main(config_path):
         eval_results = trainer._eval_epoch()
         results = train_results.copy()
         results.update(eval_results)
+
         logger.info('--- epoch %d ---' % epoch)
         for key, value in results.items():
             if isinstance(value, float):
                 logger.info('%-15s: %.4f' % (key, value))
-                writer.add_scalar(key, value, epoch)
-            else:
-                for v in value:
-                    writer.add_figure('eval_spec', v, epoch)
+                wandb.log({key: value}, step=epoch)
+                # writer.add_scalar(key, value, epoch)
+            # else:
+            #     for v in value:
+            #         writer.add_figure('eval_spec', v, epoch)
         if (epoch % save_freq) == 0:
             trainer.save_checkpoint(osp.join(log_dir, 'epoch_%05d.pth' % epoch))
 

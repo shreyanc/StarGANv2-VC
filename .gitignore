@@ -1,0 +1,9 @@
+# Compiled python modules
+__pycache__/
+
+# Data folder
+Data/
+DataVocalSet/
+Models/VCTK20/
+
+*.wav

@@ -288,6 +288,8 @@ class StyleEncoder(nn.Module):
         blocks += [nn.LeakyReLU(0.2)]
         self.shared = nn.Sequential(*blocks)
 
+        self.domain_independent_projection = nn.Linear(dim_out, style_dim)
+
         self.unshared = nn.ModuleList()
         for _ in range(num_domains):
             self.unshared += [nn.Linear(dim_out, style_dim)]
@@ -296,15 +298,17 @@ class StyleEncoder(nn.Module):
         h = self.shared(x)
 
         h = h.view(h.size(0), -1)
-        out = []
+        out = self.domain_independent_projection(h)
+        # out = []
 
-        for layer in self.unshared:
-            out += [layer(h)]
+        # for layer in self.unshared:
+        #     out += [layer(h)]
 
-        out = torch.stack(out, dim=1)  # (batch, num_domains, style_dim)
-        idx = torch.LongTensor(range(y.size(0))).to(y.device)
-        s = out[idx, y]  # (batch, style_dim)
-        return s
+        # out = torch.stack(out, dim=1)  # (batch, num_domains, style_dim)
+        # idx = torch.LongTensor(range(y.size(0))).to(y.device)
+        # s = out[idx, y]  # (batch, style_dim)
+        # return s
+        return out
 
 class Discriminator(nn.Module):
     def __init__(self, dim_in=48, num_domains=2, max_conv_dim=384, repeat_num=4):
@@ -336,6 +340,7 @@ class LinearNorm(torch.nn.Module):
 
     def forward(self, x):
         return self.linear_layer(x)
+
 
 class Discriminator2d(nn.Module):
     def __init__(self, dim_in=48, num_domains=2, max_conv_dim=384, repeat_num=4):
