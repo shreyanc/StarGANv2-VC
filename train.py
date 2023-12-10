@@ -41,7 +41,7 @@ torch.backends.cudnn.benchmark = False #
 def main(config_path):
     config = yaml.safe_load(open(config_path))
 
-    wandb.init(project='rosvc')
+    wandb.init(project='rosvc', config=config)
 
     log_dir = config['log_dir']
     if not osp.exists(log_dir): os.makedirs(log_dir, exist_ok=True)
@@ -133,11 +133,12 @@ def main(config_path):
         for key, value in results.items():
             if isinstance(value, float):
                 logger.info('%-15s: %.4f' % (key, value))
-                wandb.log({key: value}, step=epoch)
+                wandb.log({key: value}, commit=False)
                 # writer.add_scalar(key, value, epoch)
             # else:
             #     for v in value:
             #         writer.add_figure('eval_spec', v, epoch)
+        wandb.log({'epoch': epoch})
         if (epoch % save_freq) == 0:
             trainer.save_checkpoint(osp.join(log_dir, 'epoch_%05d.pth' % epoch))
 
