@@ -7,6 +7,16 @@ import random
 
 
 def prepare_data(root_dir):
+    """
+    Prepare the data by splitting WAV files into segments for each singer and calculate statistics.
+
+    Args:
+        root_dir (str): The root directory containing the WAV files.
+
+    Returns:
+        None
+    """
+
     wav_files = []
     singers = []
     total_length = {}
@@ -47,6 +57,16 @@ def prepare_data(root_dir):
 
 
 def process_vocalset(prepared_data_dir):
+    """
+    Process the VocalSet dataset by collecting WAV files, performing label encoding,
+    and saving the mapping and zipped data to text files.
+
+    Args:
+        prepared_data_dir (str): The directory containing the prepared VocalSet dataset.
+
+    Returns:
+        None
+    """
     wav_files = []
     singers = []
     total_length = {}
@@ -127,6 +147,20 @@ def split_wav_segments(wav_file, segment_length=5, output_dir="DataVocalSet", si
 
 
 def create_splits_by_label(directory_path, eval_labels):
+    """
+    Create train and eval sets based on labels.
+
+    Args:
+        directory_path (str): The directory path where the files are located.
+        eval_labels (int or list): The number of labels to include in the eval set or a list of specific labels.
+
+    Raises:
+        ValueError: If the eval_labels argument is invalid.
+
+    Returns:
+        None
+    """
+
     train_set = []
     eval_set = []
 
@@ -171,6 +205,17 @@ def create_splits_by_label(directory_path, eval_labels):
 
 
 def create_splits(directory_path, eval_fraction):
+    """
+    Create train and eval sets from a directory containing a file named 'vocalset_paths_labels.txt'.
+
+    Args:
+        directory_path (str): The path to the directory containing the file 'vocalset_paths_labels.txt'.
+        eval_fraction (float): The fraction of data points to keep in the eval set.
+
+    Returns:
+        None
+    """
+
     train_set = []
     eval_set = []
 
